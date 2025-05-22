@@ -18,6 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $phone = $_POST['phone'] ?? '';
             $apiResponse = $payHeroAPI->topUpServiceWallet($amount, $phone);
             break;
+        case 'transaction_status':
+            $reference = $_POST['reference'] ?? '';
+            $apiResponse = $payHeroAPI->getTransactionStatus($reference);
+            break;
     }
 }
 ?>
@@ -76,6 +80,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label for="phone">Phone Number:</label>
             <input type="text" id="phone" name="phone" placeholder="e.g., 0708344101" required>
             <input type="submit" value="Make Deposit">
+        </form>
+    </div>
+    
+    <div class="card">
+        <h3>Check Transaction Status</h3>
+        <form method="post">
+            <input type="hidden" name="action" value="transaction_status">
+            <label for="reference">Reference:</label>
+            <input type="text" id="reference" name="reference" placeholder="e.g., 2bbfced6-9003-4c59-a270-ec5396c2b3d4" value="2bbfced6-9003-4c59-a270-ec5396c2b3d4" required>
+            <input type="submit" value="Check Status">
         </form>
     </div>
 
