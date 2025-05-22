@@ -22,8 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $amount = (float)($_POST['amount'] ?? 10); // Convert to float
             $phone = $_POST['phone'] ?? '';
             // Using SendCustomerMpesaStkPush to deposit to Payment Wallet
-            // Using a generic channel_id and reference - update these as needed
-            $channel_id = '234'; // Replace with your actual channel ID
+            // Make sure to use an ACTIVE payment channel ID from your PayHero dashboard
+            $channel_id = 'YOUR_ACTIVE_CHANNEL_ID'; // Replace with your active channel ID
             $external_reference = 'PAY-' . time(); // Generate a unique reference
             $apiResponse = $payHeroAPI->SendCustomerMpesaStkPush($amount, $phone, $channel_id, $external_reference);
             break;
