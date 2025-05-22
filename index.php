@@ -1,4 +1,3 @@
-
 <?php
 require_once 'ph-class.php';
 
@@ -12,24 +11,8 @@ $apiResponse = '';
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
-    
+
     switch ($action) {
-        case 'service_balance':
-            $apiResponse = $payHeroAPI->getServiceWalletBalance();
-            break;
-        case 'payment_balance':
-            $apiResponse = $payHeroAPI->getPaymentWalletBalance();
-            break;
-        case 'transaction_status':
-            $reference = $_POST['reference'] ?? '';
-            $apiResponse = $payHeroAPI->getTransactionStatus($reference);
-            break;
-        case 'account_transactions':
-            $page = $_POST['page'] ?? 1;
-            $per = $_POST['per'] ?? 5;
-            $apiResponse = $payHeroAPI->getAccountTransactions($page, $per);
-            break;
-            
         case 'deposit':
             $amount = (float)($_POST['amount'] ?? 10); // Convert to float
             $phone = $_POST['phone'] ?? '';
@@ -44,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PayHero API Test</title>
+    <title>PayHero Deposit</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -82,46 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
-    <h1>PayHero API Test Interface</h1>
-    <p>Account ID: 1981</p>
-
-    <div class="card">
-        <h3>Get Service Wallet Balance</h3>
-        <form method="post">
-            <input type="hidden" name="action" value="service_balance">
-            <input type="submit" value="Check Balance">
-        </form>
-    </div>
-
-    <div class="card">
-        <h3>Get Payment Wallet Balance</h3>
-        <form method="post">
-            <input type="hidden" name="action" value="payment_balance">
-            <input type="submit" value="Check Balance">
-        </form>
-    </div>
-
-    <div class="card">
-        <h3>Get Transaction Status</h3>
-        <form method="post">
-            <input type="hidden" name="action" value="transaction_status">
-            <label for="reference">Reference:</label>
-            <input type="text" id="reference" name="reference" required>
-            <input type="submit" value="Check Status">
-        </form>
-    </div>
-
-    <div class="card">
-        <h3>Get Account Transactions</h3>
-        <form method="post">
-            <input type="hidden" name="action" value="account_transactions">
-            <label for="page">Page:</label>
-            <input type="number" id="page" name="page" value="1" min="1">
-            <label for="per">Per Page:</label>
-            <input type="number" id="per" name="per" value="5" min="1">
-            <input type="submit" value="Get Transactions">
-        </form>
-    </div>
+    <h1>PayHero Deposit</h1>
 
     <div class="card">
         <h3>Make a Deposit (Top Up Service Wallet)</h3>
