@@ -29,6 +29,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $per = $_POST['per'] ?? 5;
             $apiResponse = $payHeroAPI->getAccountTransactions($page, $per);
             break;
+            
+        case 'deposit':
+            $amount = $_POST['amount'] ?? 10;
+            $phone = $_POST['phone'] ?? '';
+            $apiResponse = $payHeroAPI->topUpServiceWallet($amount, $phone);
+            break;
     }
 }
 ?>
@@ -114,6 +120,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label for="per">Per Page:</label>
             <input type="number" id="per" name="per" value="5" min="1">
             <input type="submit" value="Get Transactions">
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>Make a Deposit (Top Up Service Wallet)</h3>
+        <form method="post">
+            <input type="hidden" name="action" value="deposit">
+            <label for="amount">Amount (KES):</label>
+            <input type="number" id="amount" name="amount" min="10" value="10" required>
+            <label for="phone">Phone Number:</label>
+            <input type="text" id="phone" name="phone" placeholder="e.g., 0708344101" required>
+            <input type="submit" value="Make Deposit">
         </form>
     </div>
 
