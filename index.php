@@ -360,8 +360,23 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
                 $jsonResponse = json_decode($apiResponse, true);
                 if (isset($jsonResponse['error_message']) && $jsonResponse['error_message'] === 'insufficient balance'): 
                 ?>
-                <div class="alert alert-error" style="background-color: #4a1c1c; color: #f44336; padding: 10px; border-radius: 5px; margin-top: 15px;">
-                    <strong>Error:</strong> Insufficient balance in your M-Pesa account. Please try with a lower amount or add funds to your M-Pesa account.
+                <div class="alert alert-error" style="background-color: #4a1c1c; color: #f44336; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                    <h3 style="margin-bottom: 10px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 5px;"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/></svg> M-Pesa Error: Insufficient Balance</h3>
+                    <p>The M-Pesa account associated with phone number <strong><?php echo htmlspecialchars($phone); ?></strong> does not have enough funds to complete this transaction of <strong>$<?php echo htmlspecialchars($amount); ?> (KSH <?php echo htmlspecialchars($amount * 130); ?>)</strong>.</p>
+                    <p style="margin-top: 10px;">You can:</p>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li>Try with a lower amount</li>
+                        <li>Add funds to your M-Pesa account and try again</li>
+                        <li>Use a different M-Pesa number with sufficient balance</li>
+                    </ul>
+                </div>
+                <?php elseif (isset($jsonResponse['status']) && $jsonResponse['status'] === 'FAILED'): ?>
+                <div class="alert alert-error" style="background-color: #4a1c1c; color: #f44336; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                    <h3 style="margin-bottom: 10px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 5px;"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/></svg> Payment Failed</h3>
+                    <p>Your payment could not be processed. Please check your details and try again.</p>
+                    <?php if (isset($jsonResponse['error_message'])): ?>
+                    <p style="margin-top: 10px;">Error: <?php echo htmlspecialchars($jsonResponse['error_message']); ?></p>
+                    <?php endif; ?>
                 </div>
                 <?php else: ?>
                 <div class="response-area">
