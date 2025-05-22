@@ -260,7 +260,7 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
                         <div class="mpesa-text">M-Pesa</div>
                     </div>
                     <div class="payment-option" data-option="airtel">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Airtel_logo.svg/2560px-Airtel_logo.svg.png" alt="Airtel Money">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Airtel_Africa_logo.svg/250px-Airtel_Africa_logo.svg.png" alt="Airtel Money">
                         <div>Airtel Money</div>
                     </div>
                     <div class="payment-option" data-option="card">
