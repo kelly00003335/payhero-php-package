@@ -280,17 +280,20 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
                 </div>
 
                 <div id="card-form" class="payment-form hidden">
+                    <div style="text-align: center; padding: 15px; background-color: #232327; border-radius: 5px; margin-bottom: 15px;">
+                        <p>Card payments are coming soon. Please use M-Pesa or Airtel Money for now.</p>
+                    </div>
                     <label for="card-number">Card Number</label>
-                    <input type="text" id="card-number" placeholder="Enter your card number">
+                    <input type="text" id="card-number" placeholder="Enter your card number" disabled>
                     
                     <div style="display: flex; gap: 10px;">
                         <div style="flex: 1;">
                             <label for="card-expiry">Expiry Date</label>
-                            <input type="text" id="card-expiry" placeholder="MM/YY">
+                            <input type="text" id="card-expiry" placeholder="MM/YY" disabled>
                         </div>
                         <div style="flex: 1;">
                             <label for="card-cvv">CVV</label>
-                            <input type="text" id="card-cvv" placeholder="123">
+                            <input type="text" id="card-cvv" placeholder="123" disabled>
                         </div>
                     </div>
                 </div>
@@ -418,15 +421,24 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
                     selectedForm.classList.remove('hidden');
                 }
                 
-                // If M-Pesa is not selected, disable form submission
-                if (option.dataset.option !== 'mpesa') {
+                // Update form submission based on selected payment method
+                if (option.dataset.option === 'mpesa') {
+                    // Allow M-Pesa submissions
+                    document.getElementById('payment-form').onsubmit = null;
+                } else if (option.dataset.option === 'airtel') {
+                    // For Airtel, temporarily show a message but prepare for future implementation
                     document.getElementById('payment-form').onsubmit = (e) => {
                         e.preventDefault();
-                        alert('Currently only M-Pesa payments are supported. Please select M-Pesa.');
+                        alert('Airtel Money integration is available with PayHero. This feature will be enabled soon.');
                         return false;
                     };
                 } else {
-                    document.getElementById('payment-form').onsubmit = null;
+                    // For card payments
+                    document.getElementById('payment-form').onsubmit = (e) => {
+                        e.preventDefault();
+                        alert('Card payments are not currently supported. Please select M-Pesa for now.');
+                        return false;
+                    };
                 }
             });
         });
