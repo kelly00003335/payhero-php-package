@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form method="post">
             <input type="hidden" name="action" value="deposit">
             <label for="amount">Amount (KES):</label>
-            <input type="number" id="amount" name="amount" min="10" value="10" required>
+            <input type="number" id="amount" name="amount" value="10" required>
             <label for="phone">Phone Number:</label>
             <input type="text" id="phone" name="phone" placeholder="e.g., 0708344101" required>
             <input type="submit" value="Make Deposit">
