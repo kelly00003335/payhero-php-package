@@ -20,10 +20,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $amount = (float)($_POST['amount'] ?? 10); // Convert to float
             $phone = $_POST['phone'] ?? '';
             // Using SendCustomerMpesaStkPush to deposit to Payment Wallet
+            // Convert USD to KSH for API call (exchange rate defined in JavaScript)
+            $exchangeRate = 130; // Make sure this matches the rate in JavaScript
+            $amountInKSH = $amount * $exchangeRate;
             // Using the active payment channel ID
             $channel_id = '2308'; // Active channel ID for Payment Wallet
             $external_reference = 'PAY-' . time(); // Generate a unique reference
-            $apiResponse = $payHeroAPI->SendCustomerMpesaStkPush($amount, $phone, $channel_id, $external_reference);
+            $apiResponse = $payHeroAPI->SendCustomerMpesaStkPush($amountInKSH, $phone, $channel_id, $external_reference);
             break;
         case 'transaction_status':
             $reference = $_POST['reference'] ?? '';
@@ -356,8 +359,8 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
     </div>
 
     <script>
-        // Currency conversion rate - 1 USD = 130 KSH (example)
-        const exchangeRate = 130;
+        // Currency conversion rate - 1 USD = 130 KSH
+        const exchangeRate = 130; // This value should match the PHP variable
         
         // Update summary when amount changes
         const amountInput = document.getElementById('amount');
