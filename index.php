@@ -45,6 +45,7 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vertex Trading</title>
+    <link rel="icon" type="image/png" href="https://i.imgur.com/BPVznDk.png">
     <style>
         * {
             margin: 0;
