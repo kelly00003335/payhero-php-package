@@ -8,7 +8,9 @@
 
 // Replace these with your actual values
 $renderApiKey = 'YOUR_API_KEY';
-$serviceId = 'YOUR_SERVICE_ID';
+// Service ID is found in your Render dashboard URL when viewing your service
+// It looks like: srv-xxxxx
+$serviceId = 'YOUR_SERVICE_ID'; // Example: srv-c8n6o2ta6u507bpj123a
 
 $url = "https://api.render.com/v1/services/{$serviceId}/deploys";
 $data = '{}'; // Empty JSON object for default deployment options
