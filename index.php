@@ -43,10 +43,13 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Vertex Trading</title>
     <link rel="icon" type="image/png" href="https://i.imgur.com/BPVznDk.png">
     <style>
+        :root {
+            --vh: 1vh;
+        }
         * {
             margin: 0;
             padding: 0;
@@ -56,17 +59,19 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
         body {
             background-color: #111;
             color: #fff;
-            padding: 20px;
+            padding: 15px;
+            font-size: 16px;
         }
         .header {
-            padding: 15px 0;
+            padding: 12px 0;
             border-bottom: 1px solid #333;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .header h1 {
             color: #fff;
             display: flex;
             align-items: center;
+            font-size: 1.5rem;
         }
         .header h1 span {
             color: #b3d233;
@@ -74,15 +79,33 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
         }
         .container {
             display: flex;
-            gap: 20px;
-            max-width: 1200px;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 100%;
             margin: 0 auto;
         }
         .card {
             background-color: #18181b;
             border-radius: 10px;
-            padding: 20px;
-            flex: 1;
+            padding: 15px;
+            width: 100%;
+        }
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            .container {
+                flex-direction: row;
+                max-width: 1200px;
+                gap: 20px;
+            }
+            .card {
+                flex: 1;
+                padding: 20px;
+            }
+            .header h1 {
+                font-size: 2rem;
+            }
         }
         h2 {
             font-size: 1.5rem;
@@ -100,29 +123,47 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
         }
         input[type="text"], input[type="number"] {
             width: 100%;
-            padding: 12px;
+            padding: 15px;
             background-color: #222;
             border: none;
             border-radius: 5px;
             color: #fff;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            font-size: 16px; /* Better for mobile input */
+            -webkit-appearance: none; /* Fix for iOS input styling */
         }
         input[type="text"]::placeholder, input[type="number"]::placeholder {
             color: #666;
         }
         .payment-options {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
         }
         .payment-option {
             flex: 1;
+            min-width: 90px; /* Ensure minimum touchable width on small screens */
             border: 1px solid #333;
             border-radius: 5px;
-            padding: 20px;
+            padding: 15px 10px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
+        }
+        @media (min-width: 768px) {
+            .payment-options {
+                gap: 10px;
+                margin-bottom: 20px;
+                flex-wrap: nowrap;
+            }
+            .payment-option {
+                padding: 20px;
+            }
+            input[type="text"], input[type="number"] {
+                padding: 12px;
+                margin-bottom: 20px;
+            }
         }
         .payment-option.active {
             border-color: #b3d233;
@@ -133,7 +174,7 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
         }
         .btn {
             width: 100%;
-            padding: 14px;
+            padding: 16px;
             background-color: #b3d233;
             color: #000;
             border: none;
@@ -144,12 +185,19 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 16px; /* Better for touch targets */
+            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
         }
-        .btn:hover {
+        .btn:hover, .btn:active {
             background-color: #9bba29;
         }
         .btn svg {
             margin-left: 8px;
+        }
+        @media (min-width: 768px) {
+            .btn {
+                padding: 14px;
+            }
         }
         .summary-row {
             display: flex;
@@ -372,6 +420,19 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
     </div>
 
     <script>
+        // Add viewport height fix for mobile browsers
+        function setVH() {
+            let vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        
+        // Set the initial viewport height
+        setVH();
+        
+        // Update viewport height on resize or orientation change
+        window.addEventListener('resize', setVH);
+        window.addEventListener('orientationchange', setVH);
+        
         // Currency conversion rate - 1 USD = 130 KSH
         const exchangeRate = 130; // This value should match the PHP variable
         
