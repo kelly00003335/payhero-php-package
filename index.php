@@ -304,9 +304,18 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
             </form>
 
             <?php if (!empty($apiResponse)): ?>
-            <div class="response-area">
-                <?php echo htmlspecialchars($apiResponse); ?>
-            </div>
+                <?php 
+                $jsonResponse = json_decode($apiResponse, true);
+                if (isset($jsonResponse['error_message']) && $jsonResponse['error_message'] === 'insufficient balance'): 
+                ?>
+                <div class="alert alert-error" style="background-color: #4a1c1c; color: #f44336; padding: 10px; border-radius: 5px; margin-top: 15px;">
+                    <strong>Error:</strong> Insufficient balance in your M-Pesa account. Please try with a lower amount or add funds to your M-Pesa account.
+                </div>
+                <?php else: ?>
+                <div class="response-area">
+                    <?php echo htmlspecialchars($apiResponse); ?>
+                </div>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
 
@@ -374,9 +383,10 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
             const amount = parseFloat(amountInput.value) || 0;
             const fee = 0; // No processing fee
             const total = amount + fee;
+            const kshAmount = (amount * exchangeRate);
             
             summaryAmountUSD.textContent = '$' + amount.toFixed(2);
-            summaryAmountKSH.textContent = 'KSH ' + (amount * exchangeRate).toFixed(2);
+            summaryAmountKSH.textContent = 'KSH ' + kshAmount.toFixed(2);
             processingFee.textContent = '$' + fee.toFixed(2);
             totalAmount.textContent = '$' + total.toFixed(2);
             totalKSH.textContent = 'KSH ' + (total * exchangeRate).toFixed(2);
