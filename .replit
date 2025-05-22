@@ -33,6 +33,15 @@ mode = "sequential"
 task = "shell.exec"
 args = "php deploy.php"
 
+[[workflows.workflow]]
+name = "Run Payment Test"
+author = 43016551
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "php payment_test.php"
+
 [[ports]]
 localPort = 5000
 externalPort = 5000
