@@ -34,6 +34,10 @@ task = "shell.exec"
 args = "php deploy.php"
 
 [[ports]]
+localPort = 5000
+externalPort = 5000
+
+[[ports]]
 localPort = 8081
 externalPort = 80
 
