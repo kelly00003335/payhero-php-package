@@ -3,7 +3,7 @@ services:
   - type: web
     name: payhero-payment-gateway
     env: php
-    buildCommand: composer install
+    buildCommand: composer install --no-dev --optimize-autoloader
     startCommand: php -S 0.0.0.0:$PORT index.php
     envVars:
       - key: PORT
