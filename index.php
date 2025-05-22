@@ -43,13 +43,9 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vertex Trading</title>
-    <link rel="icon" type="image/png" href="https://i.imgur.com/BPVznDk.png">
     <style>
-        :root {
-            --vh: 1vh;
-        }
         * {
             margin: 0;
             padding: 0;
@@ -59,19 +55,17 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
         body {
             background-color: #111;
             color: #fff;
-            padding: 15px;
-            font-size: 16px;
+            padding: 20px;
         }
         .header {
-            padding: 12px 0;
+            padding: 15px 0;
             border-bottom: 1px solid #333;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         .header h1 {
             color: #fff;
             display: flex;
             align-items: center;
-            font-size: 1.5rem;
         }
         .header h1 span {
             color: #b3d233;
@@ -79,33 +73,15 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
         }
         .container {
             display: flex;
-            flex-direction: column;
-            gap: 15px;
-            max-width: 100%;
+            gap: 20px;
+            max-width: 1200px;
             margin: 0 auto;
         }
         .card {
             background-color: #18181b;
             border-radius: 10px;
-            padding: 15px;
-            width: 100%;
-        }
-        @media (min-width: 768px) {
-            body {
-                padding: 20px;
-            }
-            .container {
-                flex-direction: row;
-                max-width: 1200px;
-                gap: 20px;
-            }
-            .card {
-                flex: 1;
-                padding: 20px;
-            }
-            .header h1 {
-                font-size: 2rem;
-            }
+            padding: 20px;
+            flex: 1;
         }
         h2 {
             font-size: 1.5rem;
@@ -123,47 +99,29 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
         }
         input[type="text"], input[type="number"] {
             width: 100%;
-            padding: 15px;
+            padding: 12px;
             background-color: #222;
             border: none;
             border-radius: 5px;
             color: #fff;
-            margin-bottom: 15px;
-            font-size: 16px; /* Better for mobile input */
-            -webkit-appearance: none; /* Fix for iOS input styling */
+            margin-bottom: 20px;
         }
         input[type="text"]::placeholder, input[type="number"]::placeholder {
             color: #666;
         }
         .payment-options {
             display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 15px;
+            gap: 10px;
+            margin-bottom: 20px;
         }
         .payment-option {
             flex: 1;
-            min-width: 90px; /* Ensure minimum touchable width on small screens */
             border: 1px solid #333;
             border-radius: 5px;
-            padding: 15px 10px;
+            padding: 20px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
-        }
-        @media (min-width: 768px) {
-            .payment-options {
-                gap: 10px;
-                margin-bottom: 20px;
-                flex-wrap: nowrap;
-            }
-            .payment-option {
-                padding: 20px;
-            }
-            input[type="text"], input[type="number"] {
-                padding: 12px;
-                margin-bottom: 20px;
-            }
         }
         .payment-option.active {
             border-color: #b3d233;
@@ -174,7 +132,7 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
         }
         .btn {
             width: 100%;
-            padding: 16px;
+            padding: 14px;
             background-color: #b3d233;
             color: #000;
             border: none;
@@ -185,19 +143,12 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px; /* Better for touch targets */
-            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
         }
-        .btn:hover, .btn:active {
+        .btn:hover {
             background-color: #9bba29;
         }
         .btn svg {
             margin-left: 8px;
-        }
-        @media (min-width: 768px) {
-            .btn {
-                padding: 14px;
-            }
         }
         .summary-row {
             display: flex;
@@ -329,20 +280,17 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
                 </div>
 
                 <div id="card-form" class="payment-form hidden">
-                    <div style="text-align: center; padding: 15px; background-color: #232327; border-radius: 5px; margin-bottom: 15px;">
-                        <p>Card payments are coming soon. Please use M-Pesa or Airtel Money for now.</p>
-                    </div>
                     <label for="card-number">Card Number</label>
-                    <input type="text" id="card-number" placeholder="Enter your card number" disabled>
+                    <input type="text" id="card-number" placeholder="Enter your card number">
                     
                     <div style="display: flex; gap: 10px;">
                         <div style="flex: 1;">
                             <label for="card-expiry">Expiry Date</label>
-                            <input type="text" id="card-expiry" placeholder="MM/YY" disabled>
+                            <input type="text" id="card-expiry" placeholder="MM/YY">
                         </div>
                         <div style="flex: 1;">
                             <label for="card-cvv">CVV</label>
-                            <input type="text" id="card-cvv" placeholder="123" disabled>
+                            <input type="text" id="card-cvv" placeholder="123">
                         </div>
                     </div>
                 </div>
@@ -360,23 +308,8 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
                 $jsonResponse = json_decode($apiResponse, true);
                 if (isset($jsonResponse['error_message']) && $jsonResponse['error_message'] === 'insufficient balance'): 
                 ?>
-                <div class="alert alert-error" style="background-color: #4a1c1c; color: #f44336; padding: 15px; border-radius: 5px; margin-top: 15px;">
-                    <h3 style="margin-bottom: 10px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 5px;"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/></svg> M-Pesa Error: Insufficient Balance</h3>
-                    <p>The M-Pesa account associated with phone number <strong><?php echo htmlspecialchars($phone); ?></strong> does not have enough funds to complete this transaction of <strong>$<?php echo htmlspecialchars($amount); ?> (KSH <?php echo htmlspecialchars($amount * 130); ?>)</strong>.</p>
-                    <p style="margin-top: 10px;">You can:</p>
-                    <ul style="margin-left: 20px; margin-top: 5px;">
-                        <li>Try with a lower amount</li>
-                        <li>Add funds to your M-Pesa account and try again</li>
-                        <li>Use a different M-Pesa number with sufficient balance</li>
-                    </ul>
-                </div>
-                <?php elseif (isset($jsonResponse['status']) && $jsonResponse['status'] === 'FAILED'): ?>
-                <div class="alert alert-error" style="background-color: #4a1c1c; color: #f44336; padding: 15px; border-radius: 5px; margin-top: 15px;">
-                    <h3 style="margin-bottom: 10px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 5px;"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/></svg> Payment Failed</h3>
-                    <p>Your payment could not be processed. Please check your details and try again.</p>
-                    <?php if (isset($jsonResponse['error_message'])): ?>
-                    <p style="margin-top: 10px;">Error: <?php echo htmlspecialchars($jsonResponse['error_message']); ?></p>
-                    <?php endif; ?>
+                <div class="alert alert-error" style="background-color: #4a1c1c; color: #f44336; padding: 10px; border-radius: 5px; margin-top: 15px;">
+                    <strong>Error:</strong> Insufficient balance in your M-Pesa account. Please try with a lower amount or add funds to your M-Pesa account.
                 </div>
                 <?php else: ?>
                 <div class="response-area">
@@ -435,19 +368,6 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
     </div>
 
     <script>
-        // Add viewport height fix for mobile browsers
-        function setVH() {
-            let vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--vh', `${vh}px`);
-        }
-        
-        // Set the initial viewport height
-        setVH();
-        
-        // Update viewport height on resize or orientation change
-        window.addEventListener('resize', setVH);
-        window.addEventListener('orientationchange', setVH);
-        
         // Currency conversion rate - 1 USD = 130 KSH
         const exchangeRate = 130; // This value should match the PHP variable
         
@@ -498,24 +418,15 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
                     selectedForm.classList.remove('hidden');
                 }
                 
-                // Update form submission based on selected payment method
-                if (option.dataset.option === 'mpesa') {
-                    // Allow M-Pesa submissions
-                    document.getElementById('payment-form').onsubmit = null;
-                } else if (option.dataset.option === 'airtel') {
-                    // For Airtel, temporarily show a message but prepare for future implementation
+                // If M-Pesa is not selected, disable form submission
+                if (option.dataset.option !== 'mpesa') {
                     document.getElementById('payment-form').onsubmit = (e) => {
                         e.preventDefault();
-                        alert('Airtel Money integration is available with PayHero. This feature will be enabled soon.');
+                        alert('Currently only M-Pesa payments are supported. Please select M-Pesa.');
                         return false;
                     };
                 } else {
-                    // For card payments
-                    document.getElementById('payment-form').onsubmit = (e) => {
-                        e.preventDefault();
-                        alert('Card payments are not currently supported. Please select M-Pesa for now.');
-                        return false;
-                    };
+                    document.getElementById('payment-form').onsubmit = null;
                 }
             });
         });

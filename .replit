@@ -13,7 +13,7 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "php -S 0.0.0.0:5000 -t ."
+args = "php -S 0.0.0.0:8080"
 
 [[workflows.workflow]]
 name = "Run Examples"
@@ -24,31 +24,6 @@ mode = "sequential"
 task = "shell.exec"
 args = "php examples.php"
 
-[[workflows.workflow]]
-name = "Deploy to Render"
-author = 43016551
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "php deploy.php"
-
-[[workflows.workflow]]
-name = "Run Payment Test"
-author = 43016551
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "php payment_test.php"
-
 [[ports]]
-localPort = 5000
-externalPort = 5000
-
-[[ports]]
-localPort = 8081
+localPort = 8080
 externalPort = 80
-
-[deployment]
-run = ["sh", "-c", "php -S 0.0.0.0:$PORT -t ."]
