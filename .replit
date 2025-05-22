@@ -13,7 +13,7 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "php -S 0.0.0.0:8080 -t ."
+args = "php -S 0.0.0.0:5000 -t ."
 
 [[workflows.workflow]]
 name = "Run Examples"
@@ -38,4 +38,4 @@ localPort = 8081
 externalPort = 80
 
 [deployment]
-run = ["sh", "-c", "php -S 0.0.0.0:8080"]
+run = ["sh", "-c", "php -S 0.0.0.0:$PORT -t ."]
