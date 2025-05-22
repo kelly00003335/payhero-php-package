@@ -1,3 +1,4 @@
+
 <?php
 require_once 'ph-class.php';
 
@@ -7,17 +8,14 @@ $payHeroAPI = new PayHeroAPI($apiUsername, $apiPassword);
 
 // Initialize response variable
 $apiResponse = '';
+$amount = '';
+$phone = '';
 
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
     switch ($action) {
-        case 'deposit':
-            $amount = (float)($_POST['amount'] ?? 10); // Convert to float
-            $phone = $_POST['phone'] ?? '';
-            $apiResponse = $payHeroAPI->topUpServiceWallet($amount, $phone);
-            break;
         case 'payment':
             $amount = (float)($_POST['amount'] ?? 10); // Convert to float
             $phone = $_POST['phone'] ?? '';
@@ -33,6 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
     }
 }
+
+// Parse response for UI display
+$responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
 ?>
 
 <!DOCTYPE html>
@@ -40,145 +41,382 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PayHero Deposit</title>
+    <title>Vertex Trading</title>
     <style>
-        body {
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
             font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
+        }
+        body {
+            background-color: #111;
+            color: #fff;
             padding: 20px;
         }
-        .card {
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 15px;
-            margin-bottom: 15px;
+        .header {
+            padding: 15px 0;
+            border-bottom: 1px solid #333;
+            margin-bottom: 20px;
         }
-        button, input[type="submit"] {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
+        .header h1 {
+            color: #fff;
+            display: flex;
+            align-items: center;
+        }
+        .header h1 span {
+            color: #b3d233;
+            margin-left: 8px;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            background-color: #18181b;
+            border-radius: 10px;
+            padding: 20px;
+            flex: 1;
+        }
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
         }
         input[type="text"], input[type="number"] {
-            padding: 8px;
-            margin: 5px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .response {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 4px;
-            margin-top: 20px;
-            white-space: pre-wrap;
-        }
-        .transaction-details {
-            margin-top: 20px;
-        }
-        .transaction-details table {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
+            padding: 12px;
+            background-color: #222;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            margin-bottom: 20px;
         }
-        .transaction-details th {
-            text-align: left;
-            background-color: #f1f1f1;
+        input[type="text"]::placeholder, input[type="number"]::placeholder {
+            color: #666;
+        }
+        .payment-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .payment-option {
+            flex: 1;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .payment-option.active {
+            border-color: #b3d233;
+        }
+        .payment-option img {
+            height: 40px;
+            margin-bottom: 10px;
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #b3d233;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn:hover {
+            background-color: #9bba29;
+        }
+        .btn svg {
+            margin-left: 8px;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #333;
+        }
+        .total {
+            padding: 15px 0;
+            text-align: right;
+        }
+        .total-amount {
+            color: #b3d233;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .total-ksh {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        .secure-card {
+            margin-top: 20px;
+        }
+        .secure-text {
+            color: #888;
+            font-size: 0.9rem;
         }
         .status {
             display: inline-block;
-            padding: 3px 8px;
-            border-radius: 3px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
             font-weight: bold;
         }
-        .queued {
-            background-color: #fff3cd;
-            color: #856404;
+        .status.success {
+            background-color: #154c34;
+            color: #4caf50;
         }
-        .success, .completed {
-            background-color: #d4edda;
-            color: #155724;
+        .status.pending, .status.queued {
+            background-color: #3a3000;
+            color: #ffc107;
         }
-        .failed {
-            background-color: #f8d7da;
-            color: #721c24;
+        .status.failed {
+            background-color: #4a1c1c;
+            color: #f44336;
         }
-        .pending {
-            background-color: #cce5ff;
-            color: #004085;
+        .hidden {
+            display: none;
+        }
+        .response-area {
+            margin-top: 20px;
+            background-color: #222;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow: auto;
+            max-height: 300px;
+        }
+        #mpesa-logo {
+            filter: brightness(1.5);
+        }
+        .mpesa-text {
+            color: #00a651;
+            font-weight: bold;
+        }
+        .dollar-sign {
+            position: absolute;
+            left: 10px;
+            top: 12px;
+            color: #666;
+        }
+        .amount-input-container {
+            position: relative;
+        }
+        .amount-input {
+            padding-left: 25px !important;
+        }
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>PayHero Deposit</h1>
-
-    <div class="card">
-        <h3>Make a Deposit (Payment Wallet)</h3>
-        <form method="post">
-            <input type="hidden" name="action" value="payment">
-            <label for="amount">Amount (KES):</label>
-            <input type="number" id="amount" name="amount" value="10" required>
-            <label for="phone">Phone Number:</label>
-            <input type="text" id="phone" name="phone" placeholder="e.g., 0708344101" required>
-            <input type="submit" value="Make Deposit">
-        </form>
-    </div>
-    
-    <div class="card">
-        <h3>Check Transaction Status</h3>
-        <form method="post">
-            <input type="hidden" name="action" value="transaction_status">
-            <label for="reference">Reference:</label>
-            <input type="text" id="reference" name="reference" placeholder="e.g., 2bbfced6-9003-4c59-a270-ec5396c2b3d4" 
-                value="<?php 
-                    // Try to get reference from the current response
-                    $currentData = json_decode($apiResponse ?? '', true);
-                    if (isset($currentData['reference']) && !empty($currentData['reference'])) {
-                        echo htmlspecialchars($currentData['reference']);
-                    } else {
-                        echo "2bbfced6-9003-4c59-a270-ec5396c2b3d4";
-                    }
-                ?>" required>
-            <input type="submit" value="Check Status">
-        </form>
+    <div class="header">
+        <h1>Vertex <span>Trading</span></h1>
     </div>
 
-    <?php if (!empty($apiResponse)): ?>
-    <div class="response">
-        <h3>API Response:</h3>
-        <pre><?php echo htmlspecialchars($apiResponse); ?></pre>
-        
-        <?php 
-        // Try to decode the JSON response
-        $responseData = json_decode($apiResponse, true);
-        if ($responseData && is_array($responseData)): 
-        ?>
-        <div class="transaction-details">
-            <h3>Transaction Details:</h3>
-            <table border="1" cellpadding="5" cellspacing="0">
-                <?php foreach($responseData as $key => $value): ?>
-                <tr>
-                    <th><?php echo htmlspecialchars(ucwords(str_replace('_', ' ', $key))); ?></th>
-                    <td>
-                        <?php 
-                        if ($key == 'status') {
-                            $statusClass = strtolower($value);
-                            echo "<span class='status $statusClass'>" . htmlspecialchars($value) . "</span>";
-                        } else if ($key == 'success') {
-                            echo $value ? "<span class='success'>Yes</span>" : "<span class='failed'>No</span>";
-                        } else {
-                            echo htmlspecialchars($value); 
-                        }
-                        ?>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </table>
+    <div class="container">
+        <div class="card">
+            <h2>Make a Deposit</h2>
+            <p class="subtitle">Choose your preferred payment method below</p>
+
+            <form method="post" id="payment-form">
+                <input type="hidden" name="action" value="payment">
+                
+                <label for="amount">Amount</label>
+                <div class="amount-input-container">
+                    <span class="dollar-sign">$</span>
+                    <input type="number" id="amount" name="amount" class="amount-input" value="<?php echo htmlspecialchars($amount ?: ''); ?>" placeholder="0.00" required>
+                </div>
+
+                <label>Select Payment Method</label>
+                <div class="payment-options">
+                    <div class="payment-option active" data-option="mpesa">
+                        <img id="mpesa-logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/M-PESA_LOGO-01.svg/1200px-M-PESA_LOGO-01.svg.png" alt="M-Pesa">
+                        <div class="mpesa-text">M-Pesa</div>
+                    </div>
+                    <div class="payment-option" data-option="airtel">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Airtel_logo.svg/2560px-Airtel_logo.svg.png" alt="Airtel Money">
+                        <div>Airtel Money</div>
+                    </div>
+                    <div class="payment-option" data-option="card">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png" alt="Visa/Mastercard">
+                        <div>Visa/Mastercard</div>
+                    </div>
+                </div>
+
+                <div id="mpesa-form" class="payment-form">
+                    <label for="phone">M-Pesa Phone Number</label>
+                    <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($phone ?: ''); ?>" placeholder="Enter your M-Pesa registered number" required>
+                </div>
+
+                <div id="airtel-form" class="payment-form hidden">
+                    <label for="airtel-phone">Airtel Money Phone Number</label>
+                    <input type="text" id="airtel-phone" placeholder="Enter your Airtel Money registered number">
+                </div>
+
+                <div id="card-form" class="payment-form hidden">
+                    <label for="card-number">Card Number</label>
+                    <input type="text" id="card-number" placeholder="Enter your card number">
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex: 1;">
+                            <label for="card-expiry">Expiry Date</label>
+                            <input type="text" id="card-expiry" placeholder="MM/YY">
+                        </div>
+                        <div style="flex: 1;">
+                            <label for="card-cvv">CVV</label>
+                            <input type="text" id="card-cvv" placeholder="123">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn">
+                    Proceed to Payment
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                    </svg>
+                </button>
+            </form>
+
+            <?php if (!empty($apiResponse)): ?>
+            <div class="response-area">
+                <?php echo htmlspecialchars($apiResponse); ?>
+            </div>
+            <?php endif; ?>
         </div>
-        <?php endif; ?>
+
+        <div class="card">
+            <h2>Deposit Summary</h2>
+            
+            <div class="summary-row">
+                <span>Amount (USD)</span>
+                <span id="summary-amount-usd">$0.00</span>
+            </div>
+            
+            <div class="summary-row">
+                <span>Amount (KSH)</span>
+                <span id="summary-amount-ksh">KSH 0.00</span>
+            </div>
+            
+            <div class="summary-row">
+                <span>Processing Fee</span>
+                <span id="processing-fee">$0.00</span>
+            </div>
+            
+            <div class="total">
+                <div class="total-amount" id="total-amount">$0.00</div>
+                <div class="total-ksh" id="total-ksh">KSH 0.00</div>
+            </div>
+
+            <?php if ($responseData && isset($responseData['status'])): ?>
+            <div class="transaction-status">
+                <h3>Transaction Status</h3>
+                <p>Status: 
+                    <span class="status <?php echo strtolower($responseData['status']); ?>">
+                        <?php echo htmlspecialchars($responseData['status']); ?>
+                    </span>
+                </p>
+                <?php if (isset($responseData['reference']) && !empty($responseData['reference'])): ?>
+                <form method="post">
+                    <input type="hidden" name="action" value="transaction_status">
+                    <input type="hidden" name="reference" value="<?php echo htmlspecialchars($responseData['reference']); ?>">
+                    <button type="submit" class="btn" style="margin-top: 10px;">Check Status</button>
+                </form>
+                <?php endif; ?>
+            </div>
+            <?php endif; ?>
+
+            <div class="secure-card">
+                <h3>Secure Payments</h3>
+                <p class="secure-text">All transactions are encrypted and secure. Your financial information is never stored on our servers.</p>
+            </div>
+        </div>
     </div>
-    <?php endif; ?>
+
+    <script>
+        // Currency conversion rate - 1 USD = 130 KSH (example)
+        const exchangeRate = 130;
+        
+        // Update summary when amount changes
+        const amountInput = document.getElementById('amount');
+        const summaryAmountUSD = document.getElementById('summary-amount-usd');
+        const summaryAmountKSH = document.getElementById('summary-amount-ksh');
+        const processingFee = document.getElementById('processing-fee');
+        const totalAmount = document.getElementById('total-amount');
+        const totalKSH = document.getElementById('total-ksh');
+        
+        function updateSummary() {
+            const amount = parseFloat(amountInput.value) || 0;
+            const fee = 0; // No processing fee
+            const total = amount + fee;
+            
+            summaryAmountUSD.textContent = '$' + amount.toFixed(2);
+            summaryAmountKSH.textContent = 'KSH ' + (amount * exchangeRate).toFixed(2);
+            processingFee.textContent = '$' + fee.toFixed(2);
+            totalAmount.textContent = '$' + total.toFixed(2);
+            totalKSH.textContent = 'KSH ' + (total * exchangeRate).toFixed(2);
+        }
+        
+        amountInput.addEventListener('input', updateSummary);
+        
+        // Initialize summary
+        updateSummary();
+        
+        // Payment method selection
+        const paymentOptions = document.querySelectorAll('.payment-option');
+        const paymentForms = document.querySelectorAll('.payment-form');
+        
+        paymentOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // Remove active class from all options
+                paymentOptions.forEach(opt => opt.classList.remove('active'));
+                
+                // Add active class to selected option
+                option.classList.add('active');
+                
+                // Hide all payment forms
+                paymentForms.forEach(form => form.classList.add('hidden'));
+                
+                // Show selected payment form
+                const selectedForm = document.getElementById(option.dataset.option + '-form');
+                if (selectedForm) {
+                    selectedForm.classList.remove('hidden');
+                }
+                
+                // If M-Pesa is not selected, disable form submission
+                if (option.dataset.option !== 'mpesa') {
+                    document.getElementById('payment-form').onsubmit = (e) => {
+                        e.preventDefault();
+                        alert('Currently only M-Pesa payments are supported. Please select M-Pesa.');
+                        return false;
+                    };
+                } else {
+                    document.getElementById('payment-form').onsubmit = null;
+                }
+            });
+        });
+    </script>
 </body>
 </html>
