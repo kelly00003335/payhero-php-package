@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
             
         case 'deposit':
-            $amount = $_POST['amount'] ?? 10;
+            $amount = (float)($_POST['amount'] ?? 10); // Convert to float
             $phone = $_POST['phone'] ?? '';
             $apiResponse = $payHeroAPI->topUpServiceWallet($amount, $phone);
             break;
