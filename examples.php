@@ -1,8 +1,8 @@
 <?php
 require_once 'ph-class.php';
 //Get this under API Keys section on https://app.payhero.co.ke/api_keys
-$apiUsername = '';
-$apiPassword = '';
+$apiUsername = '4SP4Ou69802a38D95V4Z';
+$apiPassword = '8Nm2rrXdHDc69kGGWkoiDGnIvCUvwXOu9wwTqPBD';
 $payHeroAPI = new PayHeroAPI($apiUsername, $apiPassword);
 
 /*EXAMPLE USAGE:*/
