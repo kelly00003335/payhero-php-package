@@ -13,7 +13,7 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "php -S 0.0.0.0:8080"
+args = "lsof -i :8080 -t | xargs kill -9 2>/dev/null; php -S 0.0.0.0:8080"
 
 [[workflows.workflow]]
 name = "Run Examples"
