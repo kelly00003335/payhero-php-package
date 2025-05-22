@@ -27,3 +27,6 @@ args = "php examples.php"
 [[ports]]
 localPort = 8080
 externalPort = 80
+
+[deployment]
+run = ["sh", "-c", "php -S 0.0.0.0:8080"]
