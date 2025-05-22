@@ -18,6 +18,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $phone = $_POST['phone'] ?? '';
             $apiResponse = $payHeroAPI->topUpServiceWallet($amount, $phone);
             break;
+        case 'payment':
+            $amount = (float)($_POST['amount'] ?? 10); // Convert to float
+            $phone = $_POST['phone'] ?? '';
+            // Using SendCustomerMpesaStkPush to deposit to Payment Wallet
+            // Using a generic channel_id and reference - update these as needed
+            $channel_id = '234'; // Replace with your actual channel ID
+            $external_reference = 'PAY-' . time(); // Generate a unique reference
+            $apiResponse = $payHeroAPI->SendCustomerMpesaStkPush($amount, $phone, $channel_id, $external_reference);
+            break;
         case 'transaction_status':
             $reference = $_POST['reference'] ?? '';
             $apiResponse = $payHeroAPI->getTransactionStatus($reference);
@@ -72,9 +81,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <h1>PayHero Deposit</h1>
 
     <div class="card">
-        <h3>Make a Deposit (Top Up Service Wallet)</h3>
+        <h3>Make a Deposit (Payment Wallet)</h3>
         <form method="post">
-            <input type="hidden" name="action" value="deposit">
+            <input type="hidden" name="action" value="payment">
             <label for="amount">Amount (KES):</label>
             <input type="number" id="amount" name="amount" value="10" required>
             <label for="phone">Phone Number:</label>
