@@ -13,7 +13,7 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "lsof -i :8080 -t | xargs kill -9 2>/dev/null; php -S 0.0.0.0:8080"
+args = "php -S 0.0.0.0:8080 -t ."
 
 [[workflows.workflow]]
 name = "Run Examples"
@@ -23,6 +23,15 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "php examples.php"
+
+[[workflows.workflow]]
+name = "Deploy to Render"
+author = 43016551
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "php deploy.php"
 
 [[ports]]
 localPort = 8080
