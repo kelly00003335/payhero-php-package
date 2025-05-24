@@ -19,14 +19,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'payment':
             $amount = (float)($_POST['amount'] ?? 10); // Convert to float
             $phone = $_POST['phone'] ?? '';
-            // Using SendCustomerMpesaStkPush to deposit to Payment Wallet
-            // Convert USD to KSH for API call using exchange rate from config file
-            // $exchangeRate is loaded from config.php
-            $amountInKSH = $amount * $exchangeRate;
-            // Using the active payment channel ID
-            $channel_id = '2308'; // Active channel ID for Payment Wallet
-            $external_reference = 'PAY-' . time(); // Generate a unique reference
-            $apiResponse = $payHeroAPI->SendCustomerMpesaStkPush($amountInKSH, $phone, $channel_id, $external_reference);
+            
+            // Validate and format phone number
+            $phone = preg_replace('/[^0-9]/', '', $phone); // Remove non-numeric characters
+            
+            // Format for M-Pesa API (convert from 07XXXXXXXX to 2547XXXXXXXX)
+            if (strlen($phone) >= 10 && substr($phone, 0, 1) == '0') {
+                $phone = '254' . substr($phone, 1); // Replace leading 0 with 254
+            } else if (strlen($phone) >= 9 && substr($phone, 0, 1) != '0' && substr($phone, 0, 3) != '254') {
+                $phone = '254' . $phone; // Add 254 prefix if missing
+            }
+            
+            // Validate amount
+            if ($amount <= 0) {
+                $apiResponse = json_encode(['error' => true, 'error_message' => 'Amount must be greater than 0']);
+            } 
+            // Validate phone number
+            else if (strlen($phone) < 12) {
+                $apiResponse = json_encode(['error' => true, 'error_message' => 'Invalid phone number format']);
+            } 
+            else {
+                // Using SendCustomerMpesaStkPush to deposit to Payment Wallet
+                // Convert USD to KSH for API call using exchange rate from config file
+                // $exchangeRate is loaded from config.php
+                $amountInKSH = $amount * $exchangeRate;
+                // Using the active payment channel ID
+                $channel_id = '2308'; // Active channel ID for Payment Wallet
+                $external_reference = 'PAY-' . time(); // Generate a unique reference
+                $apiResponse = $payHeroAPI->SendCustomerMpesaStkPush($amountInKSH, $phone, $channel_id, $external_reference);
+            }
             break;
         case 'transaction_status':
             $reference = $_POST['reference'] ?? '';
@@ -271,7 +292,8 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
 
                 <div id="mpesa-form" class="payment-form">
                     <label for="phone">M-Pesa Phone Number</label>
-                    <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($phone ?: ''); ?>" placeholder="Enter your M-Pesa registered number" required>
+                    <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($phone ?: ''); ?>" placeholder="Enter your M-Pesa registered number (e.g., 07XX XXX XXX)" required>
+                    <small style="color: #888; display: block; margin-top: 5px;">Format: 07XX XXX XXX (Kenyan format)</small>
                 </div>
 
                 <div id="airtel-form" class="payment-form hidden">
@@ -295,21 +317,37 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
                     </div>
                 </div>
 
-                <button type="submit" class="btn">
+                <button type="submit" class="btn" id="payment-button">
                     Proceed to Payment
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
                     </svg>
                 </button>
+                <div id="validation-error" style="color: #f44336; margin-top: 10px; display: none;"></div>
             </form>
 
             <?php if (!empty($apiResponse)): ?>
                 <?php 
                 $jsonResponse = json_decode($apiResponse, true);
-                if (isset($jsonResponse['error_message']) && $jsonResponse['error_message'] === 'insufficient balance'): 
+                if (isset($jsonResponse['error']) && $jsonResponse['error'] === true): 
                 ?>
                 <div class="alert alert-error" style="background-color: #4a1c1c; color: #f44336; padding: 10px; border-radius: 5px; margin-top: 15px;">
+                    <strong>Error:</strong> <?php echo htmlspecialchars($jsonResponse['error_message'] ?? 'An error occurred'); ?>
+                </div>
+                <?php elseif (isset($jsonResponse['error_message']) && $jsonResponse['error_message'] === 'insufficient balance'): ?>
+                <div class="alert alert-error" style="background-color: #4a1c1c; color: #f44336; padding: 10px; border-radius: 5px; margin-top: 15px;">
                     <strong>Error:</strong> Insufficient balance in your M-Pesa account. Please try with a lower amount or add funds to your M-Pesa account.
+                </div>
+                <?php elseif (isset($jsonResponse['message']) && strpos(strtolower($jsonResponse['message']), 'error') !== false): ?>
+                <div class="alert alert-error" style="background-color: #4a1c1c; color: #f44336; padding: 10px; border-radius: 5px; margin-top: 15px;">
+                    <strong>Error:</strong> <?php echo htmlspecialchars($jsonResponse['message']); ?>
+                </div>
+                <?php elseif (isset($jsonResponse['status']) && $jsonResponse['status'] === 'SUCCESS'): ?>
+                <div class="alert alert-success" style="background-color: #154c34; color: #4caf50; padding: 10px; border-radius: 5px; margin-top: 15px;">
+                    <strong>Success:</strong> Payment request sent successfully. Check your phone for the M-Pesa prompt.
+                </div>
+                <div class="response-area">
+                    <?php echo htmlspecialchars($apiResponse); ?>
                 </div>
                 <?php else: ?>
                 <div class="response-area">
@@ -371,6 +409,20 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
         // Currency conversion rate - 1 USD = 130 KSH
         const exchangeRate = 130; // This value should match the PHP variable
         
+        // Validate phone number format
+        const phoneInput = document.getElementById('phone');
+        phoneInput.addEventListener('input', function() {
+            // Remove non-numeric characters
+            this.value = this.value.replace(/[^0-9]/g, '');
+            
+            // Validate format - should be at least 9 digits
+            if (this.value.length >= 1 && this.value.length < 9) {
+                this.style.borderColor = '#f44336';
+            } else {
+                this.style.borderColor = '';
+            }
+        });
+        
         // Update summary when amount changes
         const amountInput = document.getElementById('amount');
         const summaryAmountUSD = document.getElementById('summary-amount-usd');
@@ -426,10 +478,45 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
                         return false;
                     };
                 } else {
-                    document.getElementById('payment-form').onsubmit = null;
+                    document.getElementById('payment-form').onsubmit = validateForm;
                 }
             });
         });
+        
+        // Form validation before submission
+        function validateForm(e) {
+            const phone = document.getElementById('phone').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const errorDiv = document.getElementById('validation-error');
+            
+            // Clear previous errors
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+            
+            // Validate phone number
+            const cleanPhone = phone.replace(/[^0-9]/g, '');
+            if (cleanPhone.length < 9) {
+                e.preventDefault();
+                errorDiv.textContent = 'Please enter a valid phone number (at least 9 digits)';
+                errorDiv.style.display = 'block';
+                return false;
+            }
+            
+            // Validate amount
+            if (isNaN(amount) || amount <= 0) {
+                e.preventDefault();
+                errorDiv.textContent = 'Please enter a valid amount greater than 0';
+                errorDiv.style.display = 'block';
+                return false;
+            }
+            
+            // Show loading state
+            const button = document.getElementById('payment-button');
+            button.textContent = 'Processing...';
+            button.disabled = true;
+            
+            return true;
+        }
     </script>
 </body>
 </html>
