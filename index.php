@@ -2,8 +2,8 @@
 <?php
 require_once 'ph-class.php';
 
-$apiUsername = '4SP4Ou69802a38D95V4Z';
-$apiPassword = '8Nm2rrXdHDc69kGGWkoiDGnIvCUvwXOu9wwTqPBD';
+// Load API credentials from config file
+require_once 'config.php';
 $payHeroAPI = new PayHeroAPI($apiUsername, $apiPassword);
 
 // Initialize response variable
@@ -20,8 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $amount = (float)($_POST['amount'] ?? 10); // Convert to float
             $phone = $_POST['phone'] ?? '';
             // Using SendCustomerMpesaStkPush to deposit to Payment Wallet
-            // Convert USD to KSH for API call (exchange rate defined in JavaScript)
-            $exchangeRate = 130; // Make sure this matches the rate in JavaScript
+            // Convert USD to KSH for API call using exchange rate from config file
+            // $exchangeRate is loaded from config.php
             $amountInKSH = $amount * $exchangeRate;
             // Using the active payment channel ID
             $channel_id = '2308'; // Active channel ID for Payment Wallet
