@@ -39,14 +39,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $apiResponse = json_encode(['error' => true, 'error_message' => 'Invalid phone number format']);
             } 
             else {
-                // Using SendCustomerMpesaStkPush to deposit to Payment Wallet
-                // Convert USD to KSH for API call using exchange rate from config file
-                // $exchangeRate is loaded from config.php
-                $amountInKSH = $amount * $exchangeRate;
-                // Using the active payment channel ID
-                $channel_id = '2308'; // Active channel ID for Payment Wallet
-                $external_reference = 'PAY-' . time(); // Generate a unique reference
-                $apiResponse = $payHeroAPI->SendCustomerMpesaStkPush($amountInKSH, $phone, $channel_id, $external_reference);
+                try {
+                    // Debug info
+                    error_log("API Username: " . $apiUsername);
+                    error_log("Exchange Rate: " . $exchangeRate);
+                    
+                    $amountInKSH = $amount * $exchangeRate;
+                    $channel_id = '2308';
+                    $external_reference = 'PAY-' . time();
+                    
+                    error_log("Attempting payment - Amount: " . $amountInKSH . " Phone: " . $phone);
+                    $apiResponse = $payHeroAPI->SendCustomerMpesaStkPush($amountInKSH, $phone, $channel_id, $external_reference);
+                    error_log("API Response: " . $apiResponse);
+                } catch (Exception $e) {
+                    error_log("Payment Error: " . $e->getMessage());
+                    $apiResponse = json_encode(['error' => true, 'error_message' => 'Payment processing failed: ' . $e->getMessage()]);
+                }
             }
             break;
         case 'transaction_status':

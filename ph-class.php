@@ -57,6 +57,15 @@ class PayHeroAPI {
         ));
 
         $response = curl_exec($curl);
+
+        if ($response === false) {
+            error_log("cURL Error: " . curl_error($curl));
+        }
+
+        error_log("Request URL: " . $this->baseUrl . $url);
+        error_log("Request Headers: " . print_r($headers, true));
+        error_log("Response: " . $response);
+
         curl_close($curl);
         return $response;
     }
