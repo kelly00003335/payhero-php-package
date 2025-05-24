@@ -5,7 +5,7 @@ run = "npm run dev"
 channel = "stable-24_05"
 
 [workflows]
-runButton = "Run"
+runButton = "Check Wallet Balances"
 
 [[workflows.workflow]]
 name = "Run"
