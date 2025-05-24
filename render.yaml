@@ -1,0 +1,13 @@
+
+services:
+  - type: web
+    name: vertex-trading-php
+    runtime: php
+    buildCommand: composer install
+    startCommand: php -S 0.0.0.0:$PORT
+    plan: free
+    envVars:
+      - key: PAYHERO_API_USERNAME
+        sync: false
+      - key: PAYHERO_API_PASSWORD
+        sync: false
