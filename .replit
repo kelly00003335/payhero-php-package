@@ -25,6 +25,15 @@ mode = "sequential"
 task = "shell.exec"
 args = "php examples.php"
 
+[[workflows.workflow]]
+name = "Check Wallet Balances"
+author = 43064885
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "php wallet-check.php"
+
 [[ports]]
 localPort = 8080
 externalPort = 3000
