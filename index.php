@@ -344,7 +344,7 @@ $responseData = !empty($apiResponse) ? json_decode($apiResponse, true) : null;
                 </div>
                 <?php elseif (isset($jsonResponse['error_message']) && $jsonResponse['error_message'] === 'insufficient balance'): ?>
                 <div class="alert alert-error" style="background-color: #4a1c1c; color: #f44336; padding: 10px; border-radius: 5px; margin-top: 15px;">
-                    <strong>Error:</strong> Insufficient balance in your M-Pesa account. Please try with a lower amount or add funds to your M-Pesa account.
+                    <strong>Error:</strong> Insufficient balance in the PayHero service wallet. Please contact the administrator to top up the service wallet.
                 </div>
                 <?php elseif (isset($jsonResponse['message']) && strpos(strtolower($jsonResponse['message']), 'error') !== false): ?>
                 <div class="alert alert-error" style="background-color: #4a1c1c; color: #f44336; padding: 10px; border-radius: 5px; margin-top: 15px;">
