@@ -48,4 +48,4 @@ localPort = 8080
 externalPort = 3000
 
 [deployment]
-run = ["sh", "-c", "npm run dev"]
+run = ["sh", "-c", "php -S 0.0.0.0:8080"]
